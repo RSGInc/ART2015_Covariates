@@ -1,0 +1,346 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CBCHBProjectParams_v5_5_0 xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="CBCHBProject">
+  <CBCData>
+    <DataFileType>SingleCSV</DataFileType>
+    <DataFile>C:\Users\jeff.keller\Desktop\ART2015_Covariates\CBCHB\choicedata.csv</DataFile>
+    <RespondentFile />
+    <ResponseType>PerConcept</ResponseType>
+    <NoneType>NotPresent</NoneType>
+    <TaskInfoList>
+      <ChoiceTaskListItem>
+        <TaskLabel>Task1</TaskLabel>
+        <TaskType>Random</TaskType>
+        <IncludeTask>true</IncludeTask>
+      </ChoiceTaskListItem>
+      <ChoiceTaskListItem>
+        <TaskLabel>Task2</TaskLabel>
+        <TaskType>Random</TaskType>
+        <IncludeTask>true</IncludeTask>
+      </ChoiceTaskListItem>
+      <ChoiceTaskListItem>
+        <TaskLabel>Task3</TaskLabel>
+        <TaskType>Random</TaskType>
+        <IncludeTask>false</IncludeTask>
+      </ChoiceTaskListItem>
+      <ChoiceTaskListItem>
+        <TaskLabel>Task4</TaskLabel>
+        <TaskType>Random</TaskType>
+        <IncludeTask>true</IncludeTask>
+      </ChoiceTaskListItem>
+      <ChoiceTaskListItem>
+        <TaskLabel>Task5</TaskLabel>
+        <TaskType>Random</TaskType>
+        <IncludeTask>true</IncludeTask>
+      </ChoiceTaskListItem>
+      <ChoiceTaskListItem>
+        <TaskLabel>Task6</TaskLabel>
+        <TaskType>Random</TaskType>
+        <IncludeTask>true</IncludeTask>
+      </ChoiceTaskListItem>
+      <ChoiceTaskListItem>
+        <TaskLabel>Task7</TaskLabel>
+        <TaskType>Random</TaskType>
+        <IncludeTask>true</IncludeTask>
+      </ChoiceTaskListItem>
+      <ChoiceTaskListItem>
+        <TaskLabel>Task8</TaskLabel>
+        <TaskType>Random</TaskType>
+        <IncludeTask>true</IncludeTask>
+      </ChoiceTaskListItem>
+    </TaskInfoList>
+  </CBCData>
+  <DemographicData>
+    <DemographicsFile>C:\Users\jeff.keller\Desktop\ART2015_Covariates\CBCHB\demographics.csv</DemographicsFile>
+  </DemographicData>
+  <AttributeTable>
+    <Attributes>
+      <Attribute>
+        <Label>pos</Label>
+        <CodingMethod>PartWorth</CodingMethod>
+        <RankOrder>None</RankOrder>
+        <Levels>
+          <AttributeLevel>
+            <Label>Level 1</Label>
+            <Value>1</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 2</Label>
+            <Value>2</Value>
+          </AttributeLevel>
+        </Levels>
+      </Attribute>
+      <Attribute>
+        <Label>att1</Label>
+        <CodingMethod>PartWorth</CodingMethod>
+        <RankOrder>None</RankOrder>
+        <Levels>
+          <AttributeLevel>
+            <Label>Level 1</Label>
+            <Value>1</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 2</Label>
+            <Value>2</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 3</Label>
+            <Value>3</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 4</Label>
+            <Value>4</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 5</Label>
+            <Value>5</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 6</Label>
+            <Value>6</Value>
+          </AttributeLevel>
+        </Levels>
+      </Attribute>
+      <Attribute>
+        <Label>att2</Label>
+        <CodingMethod>PartWorth</CodingMethod>
+        <RankOrder>None</RankOrder>
+        <Levels>
+          <AttributeLevel>
+            <Label>Level 1</Label>
+            <Value>1</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 2</Label>
+            <Value>2</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 3</Label>
+            <Value>3</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 4</Label>
+            <Value>4</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 5</Label>
+            <Value>5</Value>
+          </AttributeLevel>
+        </Levels>
+      </Attribute>
+      <Attribute>
+        <Label>att3</Label>
+        <CodingMethod>PartWorth</CodingMethod>
+        <RankOrder>None</RankOrder>
+        <Levels>
+          <AttributeLevel>
+            <Label>Level 1</Label>
+            <Value>1</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 2</Label>
+            <Value>2</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 3</Label>
+            <Value>3</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 4</Label>
+            <Value>4</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 5</Label>
+            <Value>5</Value>
+          </AttributeLevel>
+        </Levels>
+      </Attribute>
+      <Attribute>
+        <Label>att4</Label>
+        <CodingMethod>PartWorth</CodingMethod>
+        <RankOrder>None</RankOrder>
+        <Levels>
+          <AttributeLevel>
+            <Label>Level 1</Label>
+            <Value>1</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 2</Label>
+            <Value>2</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 3</Label>
+            <Value>3</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 4</Label>
+            <Value>4</Value>
+          </AttributeLevel>
+        </Levels>
+      </Attribute>
+      <Attribute>
+        <Label>att5</Label>
+        <CodingMethod>PartWorth</CodingMethod>
+        <RankOrder>None</RankOrder>
+        <Levels>
+          <AttributeLevel>
+            <Label>Level 1</Label>
+            <Value>1</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 2</Label>
+            <Value>2</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 3</Label>
+            <Value>3</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 4</Label>
+            <Value>4</Value>
+          </AttributeLevel>
+        </Levels>
+      </Attribute>
+      <Attribute>
+        <Label>att6</Label>
+        <CodingMethod>PartWorth</CodingMethod>
+        <RankOrder>None</RankOrder>
+        <Levels>
+          <AttributeLevel>
+            <Label>Level 1</Label>
+            <Value>1</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 2</Label>
+            <Value>2</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 3</Label>
+            <Value>3</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 4</Label>
+            <Value>4</Value>
+          </AttributeLevel>
+        </Levels>
+      </Attribute>
+      <Attribute>
+        <Label>att7</Label>
+        <CodingMethod>PartWorth</CodingMethod>
+        <RankOrder>None</RankOrder>
+        <Levels>
+          <AttributeLevel>
+            <Label>Level 1</Label>
+            <Value>1</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 2</Label>
+            <Value>2</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 3</Label>
+            <Value>3</Value>
+          </AttributeLevel>
+        </Levels>
+      </Attribute>
+      <Attribute>
+        <Label>att8</Label>
+        <CodingMethod>PartWorth</CodingMethod>
+        <RankOrder>None</RankOrder>
+        <Levels>
+          <AttributeLevel>
+            <Label>Level 1</Label>
+            <Value>1</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 2</Label>
+            <Value>2</Value>
+          </AttributeLevel>
+          <AttributeLevel>
+            <Label>Level 3</Label>
+            <Value>3</Value>
+          </AttributeLevel>
+        </Levels>
+      </Attribute>
+    </Attributes>
+    <Interactions />
+  </AttributeTable>
+  <NumBurnInIterations>
+    <Value>100000</Value>
+  </NumBurnInIterations>
+  <NumSavedDraws>
+    <Value>10000</Value>
+  </NumSavedDraws>
+  <SkipDraw>
+    <Value>5</Value>
+  </SkipDraw>
+  <SkipGraph>
+    <Value>1000</Value>
+  </SkipGraph>
+  <SkipLog>
+    <Value>1000</Value>
+  </SkipLog>
+  <SaveDraws>
+    <Value>false</Value>
+  </SaveDraws>
+  <TaskWeight>
+    <Value>1</Value>
+  </TaskWeight>
+  <EstimateNoneIfPresent>
+    <Value>false</Value>
+  </EstimateNoneIfPresent>
+  <BestWorstTaskType>BestAndWorst</BestWorstTaskType>
+  <ConstraintList>
+    <Enabled>false</Enabled>
+    <Constraints />
+  </ConstraintList>
+  <RespondentFilterList>
+    <Filters>
+      <RespondentFilter>
+        <Variable>2</Variable>
+        <Comparator>Equal</Comparator>
+        <CompareValue>0</CompareValue>
+      </RespondentFilter>
+    </Filters>
+    <Enabled>true</Enabled>
+  </RespondentFilterList>
+  <VariableCoding>DummyTail</VariableCoding>
+  <PriorDegreesOfFreedom>
+    <Value>5</Value>
+  </PriorDegreesOfFreedom>
+  <PriorVariance>
+    <Value>2</Value>
+  </PriorVariance>
+  <PriorCovarianceMatrix>
+    <Matrix />
+    <Enabled>false</Enabled>
+  </PriorCovarianceMatrix>
+  <TargetAcceptance>
+    <Value>0.3</Value>
+  </TargetAcceptance>
+  <RandomSeed>
+    <Value>1991</Value>
+  </RandomSeed>
+  <AlphaMatrix>
+    <Type>Covariates</Type>
+    <PriorMeans />
+    <PriorVariances />
+    <Covariates>
+      <CovariateVariableInfo>
+        <Include>true</Include>
+        <Label>cov</Label>
+        <Type>Categorical</Type>
+        <NumCategories>3</NumCategories>
+      </CovariateVariableInfo>
+      <CovariateVariableInfo>
+        <Include>false</Include>
+        <Label>out_hold</Label>
+        <Type>Continuous</Type>
+        <NumCategories>2</NumCategories>
+      </CovariateVariableInfo>
+    </Covariates>
+  </AlphaMatrix>
+  <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</Notes>
+</CBCHBProjectParams_v5_5_0>
