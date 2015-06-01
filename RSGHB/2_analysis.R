@@ -392,12 +392,130 @@ SingleObsTable["NCV_saw", "HitRate"] <- sum(y_hat > 0.5) / nrow(b)
 SingleObsTable["NCV_saw", "AvgP"]    <- mean(y_hat)
 
 ##############################################
+# Individual Utility Distribution Tests
+
+KSTable <- data.frame(NumDiff = rep(NA, 3), row.names = c("RSGHB_def", "RSGHB_mod", "CBCHB"))
+
+# We're doing 27 simultaneous tests, need to make an adjustment to alpha (critical p-value)
+critP <- 1 - (0.95)^(1/27)
+
+choicedata <- cd[out_hold == 0 & sequence != 3]
+demographics <- unique(choicedata[, .(Respondent = parent_id, cov)])
+
+# RSGHB (default settings)
+utilities <- data.table(CV_def[["C"]])
+utilities <- merge(utilities, demographics, by = "Respondent")
+fc <- as.list(colMeans(CV_def[["F"]][, -1]))
+utilities[, c(names(fc)) := fc]
+
+utilities[, pos.left := pos.left + (cov == "cov1") * cov1_pos.left + (cov == "cov2") * cov2_pos.left]
+
+utilities[, att1.Level1 := att1.Level1 + (cov == "cov1") * cov1_att1.Level1 + (cov == "cov2") * cov2_att1.Level1]
+utilities[, att1.Level2 := att1.Level2 + (cov == "cov1") * cov1_att1.Level2 + (cov == "cov2") * cov2_att1.Level2]
+utilities[, att1.Level3 := att1.Level3 + (cov == "cov1") * cov1_att1.Level3 + (cov == "cov2") * cov2_att1.Level3]
+utilities[, att1.Level4 := att1.Level4 + (cov == "cov1") * cov1_att1.Level4 + (cov == "cov2") * cov2_att1.Level4]
+utilities[, att1.Level5 := att1.Level5 + (cov == "cov1") * cov1_att1.Level5 + (cov == "cov2") * cov2_att1.Level5]
+
+utilities[, att2.Level1 := att2.Level1 + (cov == "cov1") * cov1_att2.Level1 + (cov == "cov2") * cov2_att2.Level1]
+utilities[, att2.Level2 := att2.Level2 + (cov == "cov1") * cov1_att2.Level2 + (cov == "cov2") * cov2_att2.Level2]
+utilities[, att2.Level3 := att2.Level3 + (cov == "cov1") * cov1_att2.Level3 + (cov == "cov2") * cov2_att2.Level3]
+utilities[, att2.Level4 := att2.Level4 + (cov == "cov1") * cov1_att2.Level4 + (cov == "cov2") * cov2_att2.Level4]
+
+utilities[, att3.Level1 := att3.Level1 + (cov == "cov1") * cov1_att3.Level1 + (cov == "cov2") * cov2_att3.Level1]
+utilities[, att3.Level2 := att3.Level2 + (cov == "cov1") * cov1_att3.Level2 + (cov == "cov2") * cov2_att3.Level2]
+utilities[, att3.Level3 := att3.Level3 + (cov == "cov1") * cov1_att3.Level3 + (cov == "cov2") * cov2_att3.Level3]
+utilities[, att3.Level4 := att3.Level4 + (cov == "cov1") * cov1_att3.Level4 + (cov == "cov2") * cov2_att3.Level4]
+
+utilities[, att4.Level1 := att4.Level1 + (cov == "cov1") * cov1_att4.Level1 + (cov == "cov2") * cov2_att4.Level1]
+utilities[, att4.Level2 := att4.Level2 + (cov == "cov1") * cov1_att4.Level2 + (cov == "cov2") * cov2_att4.Level2]
+utilities[, att4.Level3 := att4.Level3 + (cov == "cov1") * cov1_att4.Level3 + (cov == "cov2") * cov2_att4.Level3]
+
+utilities[, att5.Level1 := att5.Level1 + (cov == "cov1") * cov1_att5.Level1 + (cov == "cov2") * cov2_att5.Level1]
+utilities[, att5.Level2 := att5.Level2 + (cov == "cov1") * cov1_att5.Level2 + (cov == "cov2") * cov2_att5.Level2]
+utilities[, att5.Level3 := att5.Level3 + (cov == "cov1") * cov1_att5.Level3 + (cov == "cov2") * cov2_att5.Level3]
+
+utilities[, att6.Level1 := att6.Level1 + (cov == "cov1") * cov1_att6.Level1 + (cov == "cov2") * cov2_att6.Level1]
+utilities[, att6.Level2 := att6.Level2 + (cov == "cov1") * cov1_att6.Level2 + (cov == "cov2") * cov2_att6.Level2]
+utilities[, att6.Level3 := att6.Level3 + (cov == "cov1") * cov1_att6.Level3 + (cov == "cov2") * cov2_att6.Level3]
+
+utilities[, att7.Level1 := att7.Level1 + (cov == "cov1") * cov1_att7.Level1 + (cov == "cov2") * cov2_att7.Level1]
+utilities[, att7.Level2 := att7.Level2 + (cov == "cov1") * cov1_att7.Level2 + (cov == "cov2") * cov2_att7.Level2]
+
+utilities[, att8.Level1 := att8.Level1 + (cov == "cov1") * cov1_att8.Level1 + (cov == "cov2") * cov2_att8.Level1]
+utilities[, att8.Level2 := att8.Level2 + (cov == "cov1") * cov1_att8.Level2 + (cov == "cov2") * cov2_att8.Level2]
+
+utilities <- data.frame(utilities)
+KSTest <- rep(NA, 27)
+for (i in 1:27) {
+  KSTest[i] <- ks.test(x = utilities[, i+2], y = NCV_def[["C"]][, i+2], alternative = "two.sided", exact = TRUE)$p.value
+}
+
+KSTable["RSGHB_def", "NumDiff"] <- sum(KSTest < critP)
+
+# RSGHB (modified settings)
+utilities <- data.table(CV_mod[["C"]])
+utilities <- merge(utilities, demographics, by = "Respondent")
+fc <- as.list(colMeans(CV_mod[["F"]][, -1]))
+utilities[, c(names(fc)) := fc]
+
+utilities[, pos.left := pos.left + (cov == "cov1") * cov1_pos.left + (cov == "cov2") * cov2_pos.left]
+
+utilities[, att1.Level1 := att1.Level1 + (cov == "cov1") * cov1_att1.Level1 + (cov == "cov2") * cov2_att1.Level1]
+utilities[, att1.Level2 := att1.Level2 + (cov == "cov1") * cov1_att1.Level2 + (cov == "cov2") * cov2_att1.Level2]
+utilities[, att1.Level3 := att1.Level3 + (cov == "cov1") * cov1_att1.Level3 + (cov == "cov2") * cov2_att1.Level3]
+utilities[, att1.Level4 := att1.Level4 + (cov == "cov1") * cov1_att1.Level4 + (cov == "cov2") * cov2_att1.Level4]
+utilities[, att1.Level5 := att1.Level5 + (cov == "cov1") * cov1_att1.Level5 + (cov == "cov2") * cov2_att1.Level5]
+
+utilities[, att2.Level1 := att2.Level1 + (cov == "cov1") * cov1_att2.Level1 + (cov == "cov2") * cov2_att2.Level1]
+utilities[, att2.Level2 := att2.Level2 + (cov == "cov1") * cov1_att2.Level2 + (cov == "cov2") * cov2_att2.Level2]
+utilities[, att2.Level3 := att2.Level3 + (cov == "cov1") * cov1_att2.Level3 + (cov == "cov2") * cov2_att2.Level3]
+utilities[, att2.Level4 := att2.Level4 + (cov == "cov1") * cov1_att2.Level4 + (cov == "cov2") * cov2_att2.Level4]
+
+utilities[, att3.Level1 := att3.Level1 + (cov == "cov1") * cov1_att3.Level1 + (cov == "cov2") * cov2_att3.Level1]
+utilities[, att3.Level2 := att3.Level2 + (cov == "cov1") * cov1_att3.Level2 + (cov == "cov2") * cov2_att3.Level2]
+utilities[, att3.Level3 := att3.Level3 + (cov == "cov1") * cov1_att3.Level3 + (cov == "cov2") * cov2_att3.Level3]
+utilities[, att3.Level4 := att3.Level4 + (cov == "cov1") * cov1_att3.Level4 + (cov == "cov2") * cov2_att3.Level4]
+
+utilities[, att4.Level1 := att4.Level1 + (cov == "cov1") * cov1_att4.Level1 + (cov == "cov2") * cov2_att4.Level1]
+utilities[, att4.Level2 := att4.Level2 + (cov == "cov1") * cov1_att4.Level2 + (cov == "cov2") * cov2_att4.Level2]
+utilities[, att4.Level3 := att4.Level3 + (cov == "cov1") * cov1_att4.Level3 + (cov == "cov2") * cov2_att4.Level3]
+
+utilities[, att5.Level1 := att5.Level1 + (cov == "cov1") * cov1_att5.Level1 + (cov == "cov2") * cov2_att5.Level1]
+utilities[, att5.Level2 := att5.Level2 + (cov == "cov1") * cov1_att5.Level2 + (cov == "cov2") * cov2_att5.Level2]
+utilities[, att5.Level3 := att5.Level3 + (cov == "cov1") * cov1_att5.Level3 + (cov == "cov2") * cov2_att5.Level3]
+
+utilities[, att6.Level1 := att6.Level1 + (cov == "cov1") * cov1_att6.Level1 + (cov == "cov2") * cov2_att6.Level1]
+utilities[, att6.Level2 := att6.Level2 + (cov == "cov1") * cov1_att6.Level2 + (cov == "cov2") * cov2_att6.Level2]
+utilities[, att6.Level3 := att6.Level3 + (cov == "cov1") * cov1_att6.Level3 + (cov == "cov2") * cov2_att6.Level3]
+
+utilities[, att7.Level1 := att7.Level1 + (cov == "cov1") * cov1_att7.Level1 + (cov == "cov2") * cov2_att7.Level1]
+utilities[, att7.Level2 := att7.Level2 + (cov == "cov1") * cov1_att7.Level2 + (cov == "cov2") * cov2_att7.Level2]
+
+utilities[, att8.Level1 := att8.Level1 + (cov == "cov1") * cov1_att8.Level1 + (cov == "cov2") * cov2_att8.Level1]
+utilities[, att8.Level2 := att8.Level2 + (cov == "cov1") * cov1_att8.Level2 + (cov == "cov2") * cov2_att8.Level2]
+
+utilities <- data.frame(utilities)
+KSTest <- rep(NA, 27)
+for (i in 1:27) {
+  KSTest[i] <- ks.test(x = utilities[, i+2], y = NCV_mod[["C"]][, i+2], alternative = "two.sided", exact = TRUE)$p.value
+}
+
+KSTable["RSGHB_mod", "NumDiff"] <- sum(KSTest < critP)
+
+# CBC HB
+KSTest <- rep(NA, 27)
+for (i in 1:27) {
+  KSTest[i] <- ks.test(x = CV_saw[["C"]][, i+2], y = NCV_saw[["C"]][, i+2], alternative = "two.sided", exact = TRUE)$p.value
+}
+
+KSTable["CBCHB", "NumDiff"] <- sum(KSTest < critP)
+
+
+##############################################
 # Result Tables
 
 RLH_table
 LLSimTable
 RespObsTable
 SingleObsTable
-
-
-# ADD KS TESTS between def/mod models and secondarily between RSG vs. CBCHB
+KSTable
