@@ -1,30 +1,42 @@
-##############################################
-# Load packages, data, and model objects
+setwd("C://Users/jeff.keller/Desktop/ART2015_Covariates/")
 
-setwd("C://Users/jeff.keller/Desktop/ART2015_Covariates/RSGHB/")
+##############################################
+# Estimate R Models
+# CBC HB models must be estimated separately
+# using the 1_NCV.cbcbhb and 2_CV.cbchb
+# project files.
+
+source("RSGHB/1_estimation.R")  # May take a few hours (4 models)
+source("bayesm/1_estimation.R") # May take a few hours (2 models)
+
+##############################################
+# Load data and model results
+
+setwd("C://Users/jeff.keller/Desktop/ART2015_Covariates/")
 
 library(RSGHB)
 library(data.table)
+library(bayesm)
 library(MASS)
 
-source("0_likelihood_functions.R")
+source("RSGHB/0_likelihood_functions.R")
 
 # Load RSGHB results
-load("CV_def.RData")
-load("CV_mod.RData")
-load("NCV_def.RData")
-load("NCV_mod.RData")
-load("choicedata.RData")
+load("RSGHB/CV_def.RData")
+load("RSGHB/CV_mod.RData")
+load("RSGHB/NCV_def.RData")
+load("RSGHB/NCV_mod.RData")
+load("RSGHB/choicedata.RData")
 
 # Load CBC HB results
 NCV_saw <- list()
 CV_saw <- list()
-NCV_saw$A <- fread("../CBCHB/1_NCV_alpha.csv")
-NCV_saw$C <- fread("../CBCHB/1_NCV_utilities.csv")
-NCV_saw$D <- fread("../CBCHB/1_NCV_covariances.csv")
-CV_saw$A <- fread("../CBCHB/2_CV_alpha.csv", skip = 2) # has an extra header row for the covariate descriptions
-CV_saw$C <- fread("../CBCHB/2_CV_utilities.csv")
-CV_saw$D <- fread("../CBCHB/2_CV_covariances.csv")
+NCV_saw$A <- fread("CBCHB/1_NCV_alpha.csv")
+NCV_saw$C <- fread("CBCHB/1_NCV_utilities.csv")
+NCV_saw$D <- fread("CBCHB/1_NCV_covariances.csv")
+CV_saw$A <- fread("CBCHB/2_CV_alpha.csv", skip = 2) # has an extra header row for the covariate descriptions
+CV_saw$C <- fread("CBCHB/2_CV_utilities.csv")
+CV_saw$D <- fread("CBCHB/2_CV_covariances.csv")
 
 ##############################################
 # Organize CBC HB results

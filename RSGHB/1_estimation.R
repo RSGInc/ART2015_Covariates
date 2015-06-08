@@ -10,7 +10,7 @@ library(data.table)
 load("choicedata.RData")
 
 # Remove hold-out sample
-choicedata <- cd[out_hold == 0 & sequence!=3]
+choicedata <- cd[out_hold == 0 & sequence != 3]
 
 ###################################
 # Defining the Likelihood Functions
