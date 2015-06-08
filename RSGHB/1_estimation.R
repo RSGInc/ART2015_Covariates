@@ -75,3 +75,5 @@ save(NCV_def, file = "NCV_def.RData")
 save(NCV_mod, file = "NCV_mod.RData")
 save(CV_def,  file = "CV_def.RData")
 save(CV_mod,  file = "CV_mod.RData")
+
+rm(list = ls())
