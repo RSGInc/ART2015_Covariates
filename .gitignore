@@ -3,8 +3,10 @@
 .RData
 CV_def.Rdata
 CV_mod.Rdata
+CV_bay.Rdata
 NCV_def.Rdata
 NCV_mod.Rdata
+NCV_bay.Rdata
 1_NCV.hbu
 1_NCV.log
 1_NCV.restart
