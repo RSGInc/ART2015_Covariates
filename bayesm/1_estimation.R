@@ -49,11 +49,11 @@ for(id in sort(unique(design[, "parent_id"]))) {
 }
 
 # Create matrix of covariates
-Z <- matrix(0, 404, 2)
+Z <- matrix(0, 404, 3)
 counter <- 1
 for(id in sort(unique(design[, "parent_id"]))) {
   z <- as.numeric(choicedata$cov[1 + (counter - 1) * 7])
-  Z[counter, ] <- 1 * c(z == 2, z == 3)
+  Z[counter, ] <- 1 * c(z == 1, z == 2, z == 3)
   counter <- counter + 1
 }
 
@@ -75,7 +75,9 @@ CV_bay <- rhierBinLogit(Data = list(lgtdata = lgtdata, Z = Z), Mcmc = list(R = R
 
 # Save Models
 save(NCV_bay, file = "NCV_bay.RData")
-save(CV_bay, file = "CV_bay.RData")
+save(CV_bay,  file =  "CV_bay.RData")
+
+rm(list = ls())
 
 # # organize results
 # cat("Summary of Delta draws", fill = TRUE)
