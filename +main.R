@@ -1,7 +1,7 @@
 setwd("C://Users/jeff.keller/Desktop/ART2015_Covariates/")
 
 ##############################################
-# Estimate R Models
+# Estimate R Models (Recommend: 8+ GB RAM)
 # CBC HB models must be estimated separately
 # using the 1_NCV.cbcbhb and 2_CV.cbchb
 # project files.
@@ -28,6 +28,10 @@ load("RSGHB/NCV_def.RData")
 load("RSGHB/NCV_mod.RData")
 load("RSGHB/choicedata.RData")
 
+# Load bayesm results
+load("bayesm/CV_bay.RData")
+load("bayesm/NCV_bay.RData")
+
 # Load CBC HB results
 NCV_saw <- list()
 CV_saw <- list()
@@ -37,6 +41,46 @@ NCV_saw$D <- fread("CBCHB/1_NCV_covariances.csv")
 CV_saw$A <- fread("CBCHB/2_CV_alpha.csv", skip = 2) # has an extra header row for the covariate descriptions
 CV_saw$C <- fread("CBCHB/2_CV_utilities.csv")
 CV_saw$D <- fread("CBCHB/2_CV_covariances.csv")
+
+##############################################
+# Organize bayesm results
+
+# Rename model components
+names(NCV_bay)[1:3] <- c("C", "D", "A")
+names(CV_bay) [1:3] <- c("C", "D", "A")
+
+# Drop the burn-in iterations
+NCV_bay[["C"]] <- NCV_bay[["C"]][,, 5001:10000]
+CV_bay [["C"]] <- CV_bay [["C"]][,, 5001:10000]
+NCV_bay[["D"]] <- NCV_bay[["D"]][5001:10000, ]
+CV_bay [["D"]] <- CV_bay [["D"]][5001:10000, ]
+NCV_bay[["A"]] <- NCV_bay[["A"]][5001:10000, ]
+CV_bay [["A"]] <- CV_bay [["A"]][5001:10000, ]
+
+# Convert covariance matrices into 3D arrays
+tmp_NCV <- array(dim = c(27, 27, 5000))
+tmp_CV  <- array(dim = c(27, 27, 5000))
+for (i in 1:5000) {
+  tmp_NCV[,,i] <- matrix(NCV_bay[["D"]][i,], nrow = 27)
+  tmp_CV [,,i] <- matrix( CV_bay[["D"]][i,], nrow = 27)
+}
+NCV_bay[["D"]] <- tmp_NCV
+CV_bay [["D"]] <- tmp_CV
+rm(tmp_NCV, tmp_CV)
+
+# Calculate individual-level betas
+NCV_bay[["C"]] <- apply(X = NCV_bay[["C"]], MARGIN = 1:2, FUN = mean)
+CV_bay [["C"]] <- apply(X = CV_bay [["C"]], MARGIN = 1:2, FUN = mean)
+
+# Calculate RLH
+N <- 404
+choicedata <- cd[out_hold == 0 & sequence != 3]
+b <- NCV_bay[["C"]]
+l <- Likelihoods_NCV(fc = NULL, b = b[rep(1:nrow(b), each = 7), ])
+NCV_bay[["C"]] <- cbind(aggregate(l, by = list(rep(1:N, each = 7)), FUN = function(x) prod(x) ^ (1 / length(x)))[, 2], NCV_bay[["C"]])
+b <- CV_bay[["C"]]
+l <- Likelihoods_NCV(fc = NULL, b = b[rep(1:nrow(b), each = 7), ])
+CV_bay[["C"]] <- cbind(aggregate(l, by = list(rep(1:N, each = 7)), FUN = function(x) prod(x) ^ (1 / length(x)))[, 2], CV_bay[["C"]])
 
 ##############################################
 # Organize CBC HB results
@@ -92,8 +136,10 @@ RLH_table <- data.frame(RLH = c(mean(CV_def [["C"]][, "RLH"]),
                                 mean(CV_mod [["C"]][, "RLH"]),
                                 mean(NCV_mod[["C"]][, "RLH"]),
                                 mean(CV_saw [["C"]][, "RLH"]),
-                                mean(NCV_saw[["C"]][, "RLH"])),
-                        row.names = c("CV_def", "NCV_def", "CV_mod", "NCV_mod", "CV_saw", "NCV_saw"))
+                                mean(NCV_saw[["C"]][, "RLH"]),
+                                mean(CV_bay [["C"]][, 1]),
+                                mean(NCV_bay[["C"]][, 1])),
+                        row.names = c("CV_def", "NCV_def", "CV_mod", "NCV_mod", "CV_saw", "NCV_saw", "CV_bay", "NCV_bay"))
 
 ##############################################
 # Upper-level model simulated LL
@@ -101,7 +147,7 @@ RLH_table <- data.frame(RLH = c(mean(CV_def [["C"]][, "RLH"]),
 N <- 404
 nDraws <- 1000
 choicedata <- cd[out_hold == 0 & sequence != 3]
-LLSimTable <- data.frame(AvgLL = rep(NA, 6), row.names = c("CV_def", "NCV_def", "CV_mod", "NCV_mod", "CV_saw", "NCV_saw"))
+LLSimTable <- data.frame(AvgLL = rep(NA, 8), row.names = c("CV_def", "NCV_def", "CV_mod", "NCV_mod", "CV_saw", "NCV_saw", "CV_bay", "NCV_bay"))
 
 # RSGHB With Covariates (default settings)
 ll <- matrix(NA, N, nDraws)
@@ -198,6 +244,38 @@ for (draw in 1:nDraws) {
 } # This might take a few minutes
 
 LLSimTable["NCV_saw", "AvgLL"] <- sum(log(rowMeans(ll)))
+
+# bayesm With Covariates
+ll <- matrix(NA, N, nDraws)
+# fc <- colMeans(CV_saw[["A"]][, rep(29:55, each = 2) + rep(c(0, 27), times = 27)]) # CBC HB stores covariates with the means and in a different order
+# A <- colMeans(CV_saw[["A"]][, 2:28])
+# D <- apply(X = CV_saw[["D"]], MARGIN = 1:2, FUN = mean)
+# 
+# set.seed(1987)
+# for (draw in 1:nDraws) {
+#   b <- mvrnorm(N, mu = A, Sigma = D)
+#   b <- b[rep(1:nrow(b), each = 7), ]
+#   ll[, draw] <- aggregate(Likelihoods_CV(fc = fc, b = b), list(rep(1:N, each = 7)), prod)[, 2]
+#   if ((draw %% 25) == 0) print(draw)
+# } # This might take a few minutes
+# 
+# LLSimTable["CV_saw", "AvgLL"] <- sum(log(rowMeans(ll)))
+
+# CBC HB Without Covariates
+ll <- matrix(NA, N, nDraws)
+fc <- NULL
+A <- colMeans(NCV_bay[["A"]])
+D <- apply(X = NCV_bay[["D"]], MARGIN = 1:2, FUN = mean)
+
+set.seed(1987)
+for (draw in 1:nDraws) {
+  b <- mvrnorm(N, mu = A, Sigma = D)
+  b <- b[rep(1:nrow(b), each = 7), ]
+  ll[, draw] <- aggregate(Likelihoods_NCV(fc = fc, b = b), list(rep(1:N, each = 7)), prod)[, 2]
+  if ((draw %% 25) == 0) print(draw)
+} # This might take a few minutes
+
+LLSimTable["NCV_bay", "AvgLL"] <- sum(log(rowMeans(ll)))
 
 ##############################################
 # Complete Respondent Hold-Out Sample
