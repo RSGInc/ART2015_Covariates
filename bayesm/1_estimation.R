@@ -44,7 +44,7 @@ lgtdata <- list()
 counter <- 1
 for(id in sort(unique(design[, "parent_id"]))) {
      lgtdata[[counter]] <- list(y = y[design[, "parent_id"] == id],
-                                X = as.matrix(design[design[, "parent_id"] == id, -c(1:3, 5, 11, 16, 21, 25, 29, 33, 36)]))
+                                X = as.matrix(design[design[, "parent_id"] == id, -c(1:2, 4, 10, 15, 20, 24, 28, 32, 35, 38)]))
      counter <- counter + 1
 }
 
