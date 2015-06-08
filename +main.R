@@ -609,3 +609,45 @@ LLSimTable
 RespObsTable
 SingleObsTable
 KSTable
+
+##############################################
+# Plots
+
+plot(NCV_def)
+plot(NCV_mod)
+plot(CV_def)
+plot(CV_mod)
+
+# No-covariate vs. Covariate posterior Distributions
+df <- data.frame(Model = rep(c("Covariate", "No-Covariate"), each = 404),
+                 Estimate1 = c(CV_saw[["C"]][, 8], NCV_saw[["C"]][, 8]),
+                 Estimate2 = c(CV_saw[["C"]][, 4], NCV_saw[["C"]][, 4]))
+df[, "Model"] <- factor(df[, "Model"], levels = c("No-Covariate", "Covariate"))
+
+png("PDist1.png", width = 1200, height = 1000)
+ggplot(df, aes(x = Estimate1, fill = Model)) + geom_density(alpha = 0.8, color = "#48484a") + xlab("Estimate") + ylab("Density") + 
+  ggtitle(expression(atop("Posterior Distribution", atop(italic("Attribute 1 - Level 5"))))) +
+  scale_fill_manual(values = c("#48484a", "#f68b1f")) +
+  theme(panel.background = element_rect(fill = NA),
+        panel.grid.major = element_line(color = "gray"),
+        panel.grid.minor = element_line(color = NA),
+        axis.ticks = element_line(color = "gray"),
+        text = element_text(color = "#48484a", size = 32),
+        axis.title = element_text(size = 24),
+        axis.text = element_text(size = 20, color = "#48484a")
+  )
+dev.off()
+
+png("PDist2.png", width = 1200, height = 1000)
+ggplot(df, aes(x = Estimate2, fill = Model)) + geom_density(alpha = 0.8, color = "#48484a") + xlab("Estimate") + ylab("Density") + 
+  ggtitle(expression(atop("Posterior Distribution", atop(italic("Attribute 1 - Level 1"))))) +
+  scale_fill_manual(values = c("#48484a", "#f68b1f")) +
+  theme(panel.background = element_rect(fill = NA),
+        panel.grid.major = element_line(color = "gray"),
+        panel.grid.minor = element_line(color = NA),
+        axis.ticks = element_line(color = "gray"),
+        text = element_text(color = "#48484a", size = 32),
+        axis.title = element_text(size = 24),
+        axis.text = element_text(size = 20, color = "#48484a")
+  )
+dev.off()
