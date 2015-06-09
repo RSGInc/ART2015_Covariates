@@ -68,19 +68,31 @@ NCV_bay[["D"]] <- tmp_NCV
 CV_bay [["D"]] <- tmp_CV
 rm(tmp_NCV, tmp_CV)
 
-# Calculate individual-level betas
-NCV_bay[["C"]] <- apply(X = NCV_bay[["C"]], MARGIN = 1:2, FUN = mean)
-CV_bay [["C"]] <- apply(X = CV_bay [["C"]], MARGIN = 1:2, FUN = mean)
-
 # Calculate RLH
 N <- 404
 choicedata <- cd[out_hold == 0 & sequence != 3]
-b <- NCV_bay[["C"]]
-l <- Likelihoods_NCV(fc = NULL, b = b[rep(1:nrow(b), each = 7), ])
-NCV_bay[["C"]] <- cbind(aggregate(l, by = list(rep(1:N, each = 7)), FUN = function(x) prod(x) ^ (1 / length(x)))[, 2], NCV_bay[["C"]])
-b <- CV_bay[["C"]]
-l <- Likelihoods_NCV(fc = NULL, b = b[rep(1:nrow(b), each = 7), ])
-CV_bay[["C"]] <- cbind(aggregate(l, by = list(rep(1:N, each = 7)), FUN = function(x) prod(x) ^ (1 / length(x)))[, 2], CV_bay[["C"]])
+l <- list()
+for (i in 1:5000) {
+  b <- NCV_bay[["C"]][,,i]
+  l[[i]] <- Likelihoods_NCV(fc = NULL, b = b[rep(1:nrow(b), each = 7), ])
+  l[[i]] <- aggregate(l[[i]], by = list(rep(1:N, each = 7)), FUN = function(x) prod(x) ^ (1 / length(x)))[, 2]
+  if ((i %% 100) == 0) print(i)
+} # This might take a few minutes
+NCV_bay_RLH <- mean(rowMeans(do.call(cbind, l)))
+
+l <- list()
+for (i in 1:5000) {
+  b <- CV_bay[["C"]][,,i]
+  l[[i]] <- Likelihoods_NCV(fc = NULL, b = b[rep(1:nrow(b), each = 7), ])
+  l[[i]] <- aggregate(l[[i]], by = list(rep(1:N, each = 7)), FUN = function(x) prod(x) ^ (1 / length(x)))[, 2]
+  if ((i %% 100) == 0) print(i)
+} # This might take a few minutes
+CV_bay_RLH <- mean(rowMeans(do.call(cbind, l)))
+
+# Calculate individual-level betas
+NCV_bay[["C"]] <- apply(X = NCV_bay[["C"]], MARGIN = 1:2, FUN = mean)
+CV_bay [["C"]] <- apply(X = CV_bay [["C"]], MARGIN = 1:2, FUN = mean)
+gc()
 
 ##############################################
 # Organize CBC HB results
@@ -137,8 +149,8 @@ RLH_table <- data.frame(RLH = c(mean(CV_def [["C"]][, "RLH"]),
                                 mean(NCV_mod[["C"]][, "RLH"]),
                                 mean(CV_saw [["C"]][, "RLH"]),
                                 mean(NCV_saw[["C"]][, "RLH"]),
-                                mean(CV_bay [["C"]][, 1]),
-                                mean(NCV_bay[["C"]][, 1])),
+                                CV_bay_RLH,
+                                NCV_bay_RLH),
                         row.names = c("CV_def", "NCV_def", "CV_mod", "NCV_mod", "CV_saw", "NCV_saw", "CV_bay", "NCV_bay"))
 
 ##############################################
@@ -247,21 +259,30 @@ LLSimTable["NCV_saw", "AvgLL"] <- sum(log(rowMeans(ll)))
 
 # bayesm With Covariates
 ll <- matrix(NA, N, nDraws)
-# fc <- colMeans(CV_saw[["A"]][, rep(29:55, each = 2) + rep(c(0, 27), times = 27)]) # CBC HB stores covariates with the means and in a different order
-# A <- colMeans(CV_saw[["A"]][, 2:28])
-# D <- apply(X = CV_saw[["D"]], MARGIN = 1:2, FUN = mean)
-# 
-# set.seed(1987)
-# for (draw in 1:nDraws) {
-#   b <- mvrnorm(N, mu = A, Sigma = D)
-#   b <- b[rep(1:nrow(b), each = 7), ]
-#   ll[, draw] <- aggregate(Likelihoods_CV(fc = fc, b = b), list(rep(1:N, each = 7)), prod)[, 2]
-#   if ((draw %% 25) == 0) print(draw)
-# } # This might take a few minutes
-# 
-# LLSimTable["CV_saw", "AvgLL"] <- sum(log(rowMeans(ll)))
+cv_data <- unique(choicedata[, .(parent_id, cov)])
+fc <- NULL
+A <- t(matrix(colMeans(CV_bay[["A"]]), ncol = 27))
+A_cov1 <- A[, 1]
+A_cov2 <- A[, 2]
+A_cov3 <- A[, 3]
+D <- apply(X = CV_bay[["D"]], MARGIN = 1:2, FUN = mean)
 
-# CBC HB Without Covariates
+set.seed(1987)
+for (draw in 1:nDraws) {
+  b_cov1 <- mvrnorm(N, mu = A_cov1, Sigma = D)
+  b_cov2 <- mvrnorm(N, mu = A_cov2, Sigma = D)
+  b_cov3 <- mvrnorm(N, mu = A_cov3, Sigma = D)
+  b <- b_cov1
+  b[cv_data[, cov == "cov2"], ] <- b_cov2[cv_data[, cov == "cov2"], ]
+  b[cv_data[, cov == "cov3"], ] <- b_cov3[cv_data[, cov == "cov3"], ]
+  b <- b[rep(1:nrow(b), each = 7), ]
+  ll[, draw] <- aggregate(Likelihoods_NCV(fc = fc, b = b), list(rep(1:N, each = 7)), prod)[, 2]
+  if ((draw %% 25) == 0) print(draw)
+} # This might take a few minutes
+
+LLSimTable["CV_bay", "AvgLL"] <- sum(log(rowMeans(ll)))
+
+# bayesm Without Covariates
 ll <- matrix(NA, N, nDraws)
 fc <- NULL
 A <- colMeans(NCV_bay[["A"]])
@@ -283,10 +304,10 @@ LLSimTable["NCV_bay", "AvgLL"] <- sum(log(rowMeans(ll)))
 N <- 45
 nDraws <- 1000
 choicedata <- cd[out_hold == 1]
-RespObsTable <- data.frame(HitRate = rep(NA, 6),
-                           AvgP = rep(NA, 6),
-                           LL   = rep(NA, 6),
-                           row.names = c("CV_def", "NCV_def", "CV_mod", "NCV_mod", "CV_saw", "NCV_saw"))
+RespObsTable <- data.frame(HitRate = rep(NA, 8),
+                           AvgP = rep(NA, 8),
+                           LL   = rep(NA, 8),
+                           row.names = c("CV_def", "NCV_def", "CV_mod", "NCV_mod", "CV_saw", "NCV_saw", "CV_bay", "NCV_bay"))
 
 # RSGHB With Covariates (default settings)
 hitrate <- matrix(NA, N*8, nDraws)
@@ -407,8 +428,8 @@ hitrate <- matrix(NA, N*8, nDraws)
 prob <- matrix(NA, N*8, nDraws)
 ll <- matrix(NA, N, nDraws)
 fc <- NULL
-A <- colMeans(CV_saw[["A"]][, 2:28])
-D <- apply(X = CV_saw[["D"]], MARGIN = 1:2, FUN = mean)
+A <- colMeans(NCV_saw[["A"]][, -1])
+D <- apply(X = NCV_saw[["D"]], MARGIN = 1:2, FUN = mean)
 
 set.seed(1987)
 for (draw in 1:nDraws) {
@@ -425,13 +446,68 @@ RespObsTable["NCV_saw", "HitRate"] <- mean(hitrate)
 RespObsTable["NCV_saw", "AvgP"]    <- mean(prob)
 RespObsTable["NCV_saw", "LL"]      <- sum(log(rowMeans(ll)))
 
+# bayesm With Covariates
+cv_data <- unique(choicedata[, .(parent_id, cov)])
+hitrate <- matrix(NA, N*8, nDraws)
+prob <- matrix(NA, N*8, nDraws)
+ll <- matrix(NA, N, nDraws)
+fc <- NULL
+A <- t(matrix(colMeans(CV_bay[["A"]]), ncol = 27))
+A_cov1 <- A[, 1]
+A_cov2 <- A[, 2]
+A_cov3 <- A[, 3]
+D <- apply(X = CV_bay[["D"]], MARGIN = 1:2, FUN = mean)
+
+set.seed(1987)
+for (draw in 1:nDraws) {
+  b_cov1 <- mvrnorm(N, mu = A_cov1, Sigma = D)
+  b_cov2 <- mvrnorm(N, mu = A_cov2, Sigma = D)
+  b_cov3 <- mvrnorm(N, mu = A_cov3, Sigma = D)
+  b <- b_cov1
+  b[cv_data[, cov == "cov2"], ] <- b_cov2[cv_data[, cov == "cov2"], ]
+  b[cv_data[, cov == "cov3"], ] <- b_cov3[cv_data[, cov == "cov3"], ]
+  b <- b[rep(1:nrow(b), each = 8), ]
+  y_hat <- Likelihoods_NCV(fc = fc, b = b)
+  ll[, draw] <- aggregate(y_hat, list(rep(1:N, each = 8)), prod)[, 2]     
+  prob[, draw] <- y_hat
+  hitrate[, draw] <- y_hat > 0.5
+  if ((draw %% 25) == 0) print(draw)     
+} # This might take a few minutes
+
+RespObsTable["CV_bay", "HitRate"] <- mean(hitrate) 
+RespObsTable["CV_bay", "AvgP"]    <- mean(prob)
+RespObsTable["CV_bay", "LL"]      <- sum(log(rowMeans(ll)))
+
+# bayesm Without Covariates
+hitrate <- matrix(NA, N*8, nDraws)
+prob <- matrix(NA, N*8, nDraws)
+ll <- matrix(NA, N, nDraws)
+fc <- NULL
+A <- colMeans(NCV_bay[["A"]])
+D <- apply(X = NCV_bay[["D"]], MARGIN = 1:2, FUN = mean)
+
+set.seed(1987)
+for (draw in 1:nDraws) {
+  b <- mvrnorm(N, mu = A, Sigma = D)
+  b <- b[rep(1:nrow(b), each = 8), ]
+  y_hat <- Likelihoods_NCV(fc = fc, b = b)
+  ll[, draw] <- aggregate(y_hat, list(rep(1:N, each = 8)), prod)[, 2]     
+  prob[, draw] <- y_hat
+  hitrate[, draw] <- y_hat > 0.5
+  if ((draw %% 25) == 0) print(draw)     
+} # This might take a few minutes
+
+RespObsTable["NCV_bay", "HitRate"] <- mean(hitrate) 
+RespObsTable["NCV_bay", "AvgP"]    <- mean(prob)
+RespObsTable["NCV_bay", "LL"]      <- sum(log(rowMeans(ll)))
+
 ##############################################
 # Single Task Hold-Out Sample
 
 choicedata <- cd[sequence == 3 & out_hold == 0]
-SingleObsTable <- data.frame(HitRate = rep(NA, 6),
-                             AvgP = rep(NA, 6),
-                             row.names = c("CV_def", "NCV_def", "CV_mod", "NCV_mod", "CV_saw", "NCV_saw"))
+SingleObsTable <- data.frame(HitRate = rep(NA, 8),
+                             AvgP = rep(NA, 8),
+                             row.names = c("CV_def", "NCV_def", "CV_mod", "NCV_mod", "CV_saw", "NCV_saw", "CV_bay", "NCV_bay"))
 
 # RSGHB With Covariates (default settings)
 fc <- colMeans(CV_def[["F"]][, -1])
@@ -481,10 +557,26 @@ y_hat <- Likelihoods_NCV(fc = fc, b = b)
 SingleObsTable["NCV_saw", "HitRate"] <- sum(y_hat > 0.5) / nrow(b)
 SingleObsTable["NCV_saw", "AvgP"]    <- mean(y_hat)
 
+# bayesm With Covariates
+fc <- NULL # bayesm bakes the covariates into the resulting individual utilities
+b <- CV_bay[["C"]]
+
+y_hat <- Likelihoods_NCV(fc = fc, b = b)
+SingleObsTable["CV_bay", "HitRate"] <- sum(y_hat > 0.5) / nrow(b)
+SingleObsTable["CV_bay", "AvgP"]    <- mean(y_hat)
+
+# bayesm Without Covariates
+fc <- NULL
+b <- NCV_bay[["C"]]
+
+y_hat <- Likelihoods_NCV(fc = fc, b = b)
+SingleObsTable["NCV_bay", "HitRate"] <- sum(y_hat > 0.5) / nrow(b)
+SingleObsTable["NCV_bay", "AvgP"]    <- mean(y_hat)
+
 ##############################################
 # Individual Utility Distribution Tests
 
-KSTable <- data.frame(NumDiff = rep(NA, 3), row.names = c("RSGHB_def", "RSGHB_mod", "CBCHB"))
+KSTable <- data.frame(NumDiff = rep(NA, 4), row.names = c("RSGHB_def", "RSGHB_mod", "CBCHB", "bayesm"))
 
 # We're doing 27 simultaneous tests, need to make an adjustment to alpha (critical p-value)
 critP <- 1 - (0.95)^(1/27)
@@ -599,6 +691,14 @@ for (i in 1:27) {
 }
 
 KSTable["CBCHB", "NumDiff"] <- sum(KSTest < critP)
+
+# bayesm
+KSTest <- rep(NA, 27)
+for (i in 1:27) {
+  KSTest[i] <- ks.test(x = CV_bay[["C"]][, i], y = NCV_bay[["C"]][, i], alternative = "two.sided", exact = TRUE)$p.value
+}
+
+KSTable["bayesm", "NumDiff"] <- sum(KSTest < critP)
 
 
 ##############################################
